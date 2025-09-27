@@ -36,6 +36,8 @@
     "forceConsistentCasingInFileNames": true,
     
     "rootDir": "./",
-    "typeRoots": ["./@types"]
+    "typeRoots": ["./@types"],
+
+    "allowSyntheticDefaultImports": true
   }
 }
