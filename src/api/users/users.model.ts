@@ -1,36 +1,46 @@
-import { BaseModel } from "../../types/model.types";
+import { Users } from '@prisma/client';
 
-/**
- * User objects allow you to associate actions performed in the system with the user that performed them.
- * The User object contains common information across every user in the system regardless of status and role.
- *
- *
- * @example {
- *  "id": "52907745-7672-470e-a803-a2f8feb52944",
- *  "name": "John Doe",
- *  "email": "john.doe@example.com",
- *  "password": "123456",
- *  "createdAt": "2025-09-26T15:42:13.208Z",
- * }
- */
-export interface User extends BaseModel {
+export interface UsersCreateInput {
     /**
-     * @isString User name must be a string
+     * @minLength 1 User name is required
+     * @maxLength 100 User name must be less than 100 characters
+     * @example "John Doe"
      */
     name: string;
-    
+
+    /**
+     * @minLength 1 Email is required
+     * @maxLength 255 Email must be less than 255 characters
+     * @example "john@example.com"
+     */
+    email: string;
+
+    /**
+     * @minLength 6 Password must be at least 6 characters
+     * @maxLength 100 Password must be less than 100 characters
+     * @example "password123"
+     */
+    password: string;
+}
+
+export interface UsersLoginInput {
     /**
      * @isEmail Must be a valid email address
      * @pattern ^(.+)@(.+)$ please provide correct email
+     * @minLength 1 Email is required
+     * @maxLength 255 Email must be less than 255 characters
+     * @example "john@example.com"
      */
     email: string;
-    
+
     /**
-     * @isString Password must be a string
-     * @required Password is required
-     * @minLength 8 Password must be at least 8 characters long
-     * @maxLength 128 Password cannot exceed 128 characters
-     * @pattern ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&] Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character
+     * @minLength 1 Password is required
+     * @example "password123"
      */
     password: string;
+}
+
+export interface UsersLoginResponse {
+    user: Users;
+    token: string;
 }

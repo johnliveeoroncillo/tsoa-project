@@ -1,57 +1,81 @@
-import { User } from './users.model';
-
-// A post request should not contain an id.
-export type UserCreationParams = Pick<User, "email" | "name" | "password">;
+import { Users } from '@prisma/client';
+import {
+    UsersCreateInput,
+    UsersLoginInput,
+    UsersLoginResponse,
+} from './users.model';
+import prisma from '../../lib/prisma';
+import {
+    DuplicateException,
+    UnauthorizedException,
+} from '../../common/exceptions/http.exceptions';
+import { JwtService } from '../../services/jwt.service';
 
 export class UsersService {
-  public get(id: string, name?: string): User {
-    return {
-      id,
-      email: "jane@doe.com",
-      name: name ?? "Jane Doe",
-      password: "123456",
-      createdAt: new Date(),
-    };
-  }
+    public async create(user: UsersCreateInput): Promise<Users> {
+        const existingUser = await this.findByEmail(user.email);
+        if (existingUser) {
+            throw new DuplicateException('User with this email already exists');
+        }
 
-  public getAll(): User[] {
-    return [
-      {
-        id: "1",
-        email: "jane@doe.com",
-        name: "Jane Doe",
-        password: "123456",
-        createdAt: new Date(),
-      },
-      {
-        id: "2",
-        email: "john@doe.com",
-        name: "John Doe",
-        password: "123456",
-        createdAt: new Date(),
-      },
-      {
-        id: "3",
-        email: "jim@doe.com",
-        name: "Jim Doe",
-        password: "123456",
-        createdAt: new Date(),
-      },
-      {
-        id: "4",
-        email: "jill@doe.com",
-        name: "Jill Doe",
-        password: "123456",
-        createdAt: new Date(),
-      },
-    ];
-  }
+        user.password = await JwtService.hashPassword(user.password);
+        const createdUser = await prisma.users.create({
+            data: user,
+        });
+        return createdUser;
+    }
 
-  public create(userCreationParams: UserCreationParams): User {
-    return {
-      id: Math.floor(Math.random() * 10000).toString(), // Random
-      createdAt: new Date(),
-      ...userCreationParams,
-    };
-  }
+    public async login(user: UsersLoginInput): Promise<UsersLoginResponse> {
+        const existingUser = await this.findByEmail(user.email);
+        if (!existingUser) {
+            throw new UnauthorizedException('Invalid email or password');
+        }
+        const isPasswordValid = await JwtService.comparePassword(
+            user.password,
+            existingUser.password,
+        );
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Invalid email or password');
+        }
+        const token = JwtService.generateToken({
+            userId: existingUser.id,
+            email: existingUser.email,
+        });
+        return {
+            user: existingUser,
+            token,
+        };
+    }
+
+    public async findById(id: string): Promise<Users | null> {
+        return await prisma.users.findUnique({
+            where: { id },
+        });
+    }
+
+    public async findByEmail(email: string): Promise<Users | null> {
+        return await prisma.users.findUnique({
+            where: { email },
+        });
+    }
+
+    public async findAll(): Promise<Users[]> {
+        return await prisma.users.findMany();
+    }
+
+    public async update(
+        id: string,
+        data: Partial<UsersCreateInput>,
+    ): Promise<Users> {
+        return await prisma.users.update({
+            where: { id },
+            data,
+        });
+    }
+
+    public async delete(id: string): Promise<Users> {
+        return await prisma.users.delete({
+            where: { id },
+        });
+    }
 }
