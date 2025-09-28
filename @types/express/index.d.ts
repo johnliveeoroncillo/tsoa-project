@@ -3,9 +3,7 @@ declare global {
   namespace Express {
     interface Request<T = any> {
       user?: T;
-      headers?: {
-        requestId?: string;
-      }
+      requestId?: string;
     }
   }
 }

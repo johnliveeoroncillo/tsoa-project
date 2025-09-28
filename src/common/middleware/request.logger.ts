@@ -10,7 +10,13 @@ export function requestLogger(
     const timestamp = new Date().toISOString();
     const { headers } = req;
 
-    const requestId = headers.requestId || randomUUID();
+    const requestId =
+        (Array.isArray(headers.requestid)
+            ? headers.requestid[0]
+            : headers.requestid) || randomUUID();
+
+    // Add request ID to request object for use in other middleware/controllers
+    req.requestId = requestId;
 
     // Log incoming request
     console.log(
