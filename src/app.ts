@@ -11,6 +11,7 @@ import swaggerUi from 'swagger-ui-express';
 import { ValidateError } from 'tsoa';
 import { responseInterceptor } from './common/middleware/response.interceptor';
 import { exceptionHandler } from './common/middleware/exception.handler';
+import { requestLogger } from './common/middleware/request.logger';
 
 export const app = express();
 
@@ -21,6 +22,9 @@ app.use(
     }),
 );
 app.use(json());
+
+// Add request logging middleware (should be early in the chain)
+app.use(requestLogger);
 
 // Add response interceptor middleware to wrap all responses in generic format
 app.use(responseInterceptor);

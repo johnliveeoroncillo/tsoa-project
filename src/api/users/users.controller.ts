@@ -12,7 +12,7 @@ import { ValidateBody } from '../../common/decorators';
 
 @Route('users')
 export class UsersController extends Controller {
-    private usersService: UsersService;
+    private readonly usersService: UsersService;
     constructor() {
         super();
         this.usersService = new UsersService();
