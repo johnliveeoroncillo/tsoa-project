@@ -40,15 +40,14 @@ export function expressAuthentication(
             }
 
             // Set user data on request object
-            request.user = {
-                id: payload.userId,
-                email: payload.email,
+            request.context = {
+                id: payload.id,
                 role: 'user',
             };
 
             // Check scopes if provided
             if (scopes && scopes.length > 0) {
-                const userRole = request.user?.role;
+                const userRole = request.context?.role;
                 const hasRequiredScope = userRole && scopes.includes(userRole);
                 if (!hasRequiredScope) {
                     reject(

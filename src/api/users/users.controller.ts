@@ -50,6 +50,6 @@ export class UsersController extends Controller {
     public async getUser(
         @Request() request: ExpressRequest,
     ): Promise<Users | null> {
-        return this.usersService.findById(request.user.userId);
+        return this.usersService.findById(request.context.id);
     }
 }

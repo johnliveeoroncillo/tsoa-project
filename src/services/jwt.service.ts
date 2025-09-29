@@ -2,8 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 export interface JwtPayload {
-    userId: string;
-    email: string;
+    id: string;
     iat?: number;
     exp?: number;
 }
