@@ -10,8 +10,14 @@ import {
 } from '../../common/exceptions/http.exceptions';
 import { JwtService } from '../../services/jwt.service';
 import prisma from '../../lib/prisma';
+import { EmailService } from '../../services/email.service';
 
 export class UsersService {
+    private readonly emailService: EmailService;
+    constructor() {
+        this.emailService = new EmailService();
+    }
+
     public async create(user: UsersCreateInput): Promise<Users> {
         const existingUser = await this.findByEmail(user.email);
         if (existingUser) {
@@ -78,5 +84,20 @@ export class UsersService {
         return await prisma.users.delete({
             where: { id },
         });
+    }
+
+    public async sendTestEmail(requestBody: {
+        to: string;
+        subject: string;
+        template: string;
+        data: Record<string, any>;
+    }): Promise<void> {
+        const { to, subject, template, data } = requestBody;
+        return await this.emailService.sendTemplatedEmail(
+            to,
+            subject,
+            template,
+            data,
+        );
     }
 }

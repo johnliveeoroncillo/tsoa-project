@@ -3,10 +3,11 @@ import Joi from 'joi';
 import { Controller, Route, Post, Get, Security, Request, Body } from 'tsoa';
 import { UsersService } from './users.service';
 import { Users } from '@prisma/client';
-import {
+import type {
     UsersCreateInput,
     UsersLoginInput,
     UsersLoginResponse,
+    SendTestEmailInput,
 } from './users.model';
 import { ValidateBody } from '../../common/decorators';
 
@@ -18,6 +19,10 @@ export class UsersController extends Controller {
         this.usersService = new UsersService();
     }
 
+    /**
+     *
+     * @param DuplicateException - Duplicate email
+     */
     @Post()
     @ValidateBody(
         Joi.object({
@@ -32,6 +37,10 @@ export class UsersController extends Controller {
         return this.usersService.create(requestBody);
     }
 
+    /**
+     *
+     * @param UnauthorizedException - Invalid email or password
+     */
     @Post('/login')
     @ValidateBody(
         Joi.object({
@@ -51,5 +60,24 @@ export class UsersController extends Controller {
         @Request() request: ExpressRequest,
     ): Promise<Users | null> {
         return this.usersService.findById(request.context.id);
+    }
+
+    /**
+     * @summary Send a test email
+     */
+    @Post('/send-test-email')
+    @ValidateBody(
+        Joi.object({
+            to: Joi.string().email().required(),
+            subject: Joi.string().required(),
+            template: Joi.string().required(),
+            data: Joi.object().required(),
+        }),
+    )
+    public async sendTestEmail(
+        @Body() requestBody: SendTestEmailInput,
+    ): Promise<{ message: string }> {
+        await this.usersService.sendTestEmail(requestBody);
+        return { message: 'Email sent successfully' };
     }
 }
