@@ -8,7 +8,7 @@ export function expressAuthentication(
     scopes?: string[],
 ): Promise<unknown> {
     return new Promise((resolve, reject) => {
-        console.log('TSOA Authentication middleware');
+        console.log('Authentication middleware');
         console.log('Security name:', securityName);
         console.log('Scopes:', scopes);
 
@@ -40,10 +40,7 @@ export function expressAuthentication(
             }
 
             // Set user data on request object
-            request.context = {
-                id: payload.id,
-                role: 'user',
-            };
+            request.context = payload;
 
             // Check scopes if provided
             if (scopes && scopes.length > 0) {

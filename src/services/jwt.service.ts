@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 
 export interface JwtPayload {
     id: string;
+    meta?: Record<string, any>;
+    role?: string;
     iat?: number;
     exp?: number;
 }

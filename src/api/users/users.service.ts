@@ -38,8 +38,9 @@ export class UsersService {
             throw new UnauthorizedException('Invalid email or password');
         }
         const token = JwtService.generateToken({
-            userId: existingUser.id,
-            email: existingUser.email,
+            id: existingUser.id,
+            meta: existingUser,
+            role: 'user',
         });
         return {
             user: existingUser,
