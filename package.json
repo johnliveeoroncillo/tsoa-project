@@ -5,7 +5,7 @@
   "author": "John Oroncillo <john.oroncillo@forgewerks.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "concurrently \"nodemon\" \"nodemon -x 'npx tsoa spec-and-routes' --watch src --ext ts\"",
+    "dev": "nodemon",
     "build": "tsoa spec-and-routes && tsc",
     "start": "node build/src/server.js",
     "build:spec": "tsoa spec",
