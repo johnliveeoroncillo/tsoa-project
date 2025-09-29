@@ -36,7 +36,7 @@
     "forceConsistentCasingInFileNames": true,
     
     "rootDir": "./",
-    "typeRoots": ["./@types", "./node_modules/@types"],
+    "typeRoots": ["./@types", "./node_modules/@types", "./src/types"],
 
     "allowSyntheticDefaultImports": true
   }

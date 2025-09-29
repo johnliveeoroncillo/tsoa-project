@@ -13,7 +13,7 @@ export function expressAuthentication(
         console.log('Scopes:', scopes);
 
         if (securityName === 'bearer') {
-            const authHeader = request.headers.authorization;
+            const authHeader = request.headers?.authorization;
             if (!authHeader) {
                 reject(
                     new UnauthorizedException(

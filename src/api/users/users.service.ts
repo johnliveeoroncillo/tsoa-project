@@ -4,12 +4,12 @@ import {
     UsersLoginInput,
     UsersLoginResponse,
 } from './users.model';
-import prisma from '../../lib/prisma';
 import {
     DuplicateException,
     UnauthorizedException,
 } from '../../common/exceptions/http.exceptions';
 import { JwtService } from '../../services/jwt.service';
+import prisma from '../../lib/prisma';
 
 export class UsersService {
     public async create(user: UsersCreateInput): Promise<Users> {

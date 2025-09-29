@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 
 export interface JwtPayload {
     id: string;
-    meta?: Record<string, any>;
+    meta?: Record<string, unknown>;
     role?: string;
     iat?: number;
     exp?: number;
@@ -13,6 +13,8 @@ export class JwtService {
     private static readonly SECRET_KEY =
         process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
+    private static readonly EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+
     /**
      * Generate JWT token
      * @param payload User data to encode in token
@@ -20,7 +22,7 @@ export class JwtService {
      */
     static generateToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
         return jwt.sign(payload, this.SECRET_KEY, {
-            expiresIn: '24h',
+            expiresIn: this.EXPIRES_IN,
         } as jwt.SignOptions);
     }
 
@@ -32,7 +34,7 @@ export class JwtService {
     static verifyToken(token: string): JwtPayload | null {
         try {
             return jwt.verify(token, this.SECRET_KEY) as JwtPayload;
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -66,9 +68,9 @@ export class JwtService {
      * @returns Token string or null
      */
     static extractTokenFromHeader(authHeader: string): string | null {
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        if (!authHeader?.startsWith('Bearer ')) {
             return null;
         }
-        return authHeader.substring(7); // Remove 'Bearer ' prefix
+        return authHeader.replace('Bearer ', ''); // Remove 'Bearer ' prefix
     }
 }
