@@ -1,6 +1,6 @@
 import { Request as ExpressRequest } from 'express';
 import Joi from 'joi';
-import { Controller, Route, Post, Get, Security, Request, Body } from 'tsoa';
+import { Controller, Route, Post, Get, Security, Request, Body, Tags } from 'tsoa';
 import { UsersService } from './users.service';
 import { Users } from '@prisma/client';
 import type {
@@ -12,6 +12,7 @@ import type {
 import { ValidateBody } from '../../common/decorators';
 
 @Route('users')
+@Tags('Users')
 export class UsersController extends Controller {
     private readonly usersService: UsersService;
     constructor() {
