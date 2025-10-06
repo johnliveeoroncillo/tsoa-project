@@ -1,6 +1,18 @@
 import { Request as ExpressRequest } from 'express';
 import Joi from 'joi';
-import { Controller, Route, Post, Get, Security, Request, Body, Tags } from 'tsoa';
+import {
+    Controller,
+    Route,
+    Post,
+    Get,
+    Security,
+    Request,
+    Body,
+    Tags,
+    Put,
+    Path,
+    Response,
+} from 'tsoa';
 import { UsersService } from './users.service';
 import { Users } from '@prisma/client';
 import type {
@@ -8,8 +20,13 @@ import type {
     UsersLoginInput,
     UsersLoginResponse,
     SendTestEmailInput,
+    UsersUpdateInput,
 } from './users.model';
 import { ValidateBody } from '../../common/decorators';
+import {
+    DuplicateException,
+    UnauthorizedException,
+} from '../../common/exceptions';
 
 @Route('users')
 @Tags('Users')
@@ -21,8 +38,7 @@ export class UsersController extends Controller {
     }
 
     /**
-     *
-     * @param DuplicateException - Duplicate email
+     * @summary Create a new user
      */
     @Post()
     @ValidateBody(
@@ -32,6 +48,7 @@ export class UsersController extends Controller {
             password: Joi.string().required(),
         }),
     )
+    @Response<DuplicateException>('409')
     public async createUser(
         @Body() requestBody: UsersCreateInput,
     ): Promise<Users> {
@@ -39,8 +56,7 @@ export class UsersController extends Controller {
     }
 
     /**
-     *
-     * @param UnauthorizedException - Invalid email or password
+     * @summary Login a user
      */
     @Post('/login')
     @ValidateBody(
@@ -49,14 +65,20 @@ export class UsersController extends Controller {
             password: Joi.string().required(),
         }),
     )
+    @Response<UnauthorizedException>('401')
     public async loginUser(
         @Body() requestBody: UsersLoginInput,
     ): Promise<UsersLoginResponse> {
-        return this.usersService.login(requestBody);
+        const data = await this.usersService.login(requestBody);
+        return data;
     }
 
+    /**
+     * @summary Get a user
+     */
     @Get()
     @Security('bearer')
+    @Response<UnauthorizedException>('401')
     public async getUser(
         @Request() request: ExpressRequest,
     ): Promise<Users | null> {
@@ -80,5 +102,19 @@ export class UsersController extends Controller {
     ): Promise<{ message: string }> {
         await this.usersService.sendTestEmail(requestBody);
         return { message: 'Email sent successfully' };
+    }
+
+    @Put('{id}')
+    @ValidateBody(
+        Joi.object({
+            password: Joi.string().required(),
+            name: Joi.string().allow('', null),
+        }),
+    )
+    public async updateUser(
+        @Path() id: string,
+        @Body() requestBody: UsersUpdateInput,
+    ): Promise<Users> {
+        return this.usersService.update(id, requestBody);
     }
 }

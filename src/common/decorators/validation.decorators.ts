@@ -11,11 +11,19 @@ export function ValidateBody(validationSchema: Joi.Schema) {
         const originalMethod = descriptor.value;
 
         descriptor.value = async function (...args: unknown[]) {
-            // Get the request body from the first argument (assuming it's the body parameter)
-            const requestBody = args[0];
+            // Find the first plain object among parameters as the request body
+            const requestBody = args.find(
+                arg =>
+                    arg !== null &&
+                    typeof arg === 'object' &&
+                    !Array.isArray(arg),
+            );
 
             // Validate the request body against the Joi schema
-            const { error } = validationSchema.validate(requestBody);
+            const { error } = validationSchema.validate(requestBody, {
+                abortEarly: false,
+                allowUnknown: false,
+            });
             if (error) {
                 const errors: Record<string, string> = {};
                 error.details.forEach((detail: Joi.ValidationErrorItem) => {

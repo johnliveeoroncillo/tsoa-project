@@ -11,6 +11,14 @@ export type UsersCreateInput = Pick<Users, 'name' | 'email' | 'password'>;
 
 /**
  * @example {
+ *  "name": "John Doe",
+ *  "password": "password"
+ * }
+ */
+export type UsersUpdateInput = Partial<Pick<Users, 'name' | 'password'>>;
+
+/**
+ * @example {
  *  "email": "test@test.com",
  *  "password": "password"
  * }

@@ -3,6 +3,7 @@ import {
     UsersCreateInput,
     UsersLoginInput,
     UsersLoginResponse,
+    UsersUpdateInput,
 } from './users.model';
 import {
     DuplicateException,
@@ -72,7 +73,7 @@ export class UsersService {
 
     public async update(
         id: string,
-        data: Partial<UsersCreateInput>,
+        data: Partial<UsersUpdateInput>,
     ): Promise<Users> {
         return await prisma.users.update({
             where: { id },
