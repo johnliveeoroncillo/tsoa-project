@@ -22,6 +22,7 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
 
     /* Module Resolution Options */
     "moduleResolution": "node",
@@ -39,5 +40,11 @@
     "typeRoots": ["./@types", "./node_modules/@types", "./src/types"],
 
     "allowSyntheticDefaultImports": true
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "noUnusedLocals": false,
+      "noUnusedParameters": false
+    }
   }
 }
