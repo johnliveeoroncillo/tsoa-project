@@ -45,7 +45,7 @@ export function expressAuthentication(
             // Check scopes if provided
             if (scopes && scopes.length > 0) {
                 const userRole = request.context?.role;
-                const hasRequiredScope = userRole && scopes.includes(userRole);
+                const hasRequiredScope = userRole && scopes.includes(userRole.toLowerCase());
                 if (!hasRequiredScope) {
                     reject(
                         new UnauthorizedException(
