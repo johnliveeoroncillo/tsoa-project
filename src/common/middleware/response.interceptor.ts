@@ -66,8 +66,8 @@ function isApiResponse(body: unknown): boolean {
  */
 function getSuccessMessage(
     statusCode: number,
-    method: string,
-    path: string,
+    _method: string,
+    _path: string,
 ): string {
     const statusMessages: { [key: number]: string } = {
         200: 'Success',
@@ -77,22 +77,6 @@ function getSuccessMessage(
     };
 
     // Default message based on status code
-    let message = statusMessages[statusCode] || 'Success';
-
-    // Customize message based on endpoint
-    if (path.includes('/users')) {
-        if (method === 'GET' && path.includes('{')) {
-            message = 'User retrieved successfully';
-        } else if (method === 'GET') {
-            message = 'Users retrieved successfully';
-        } else if (method === 'POST') {
-            message = 'User created successfully';
-        } else if (method === 'PUT') {
-            message = 'User updated successfully';
-        } else if (method === 'DELETE') {
-            message = 'User deleted successfully';
-        }
-    }
-
+    const message = statusMessages[statusCode] || 'Success';
     return message;
 }
