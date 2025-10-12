@@ -111,6 +111,7 @@ export class UsersController extends Controller {
             name: Joi.string().allow('', null),
         }),
     )
+    @Security('bearer')
     public async updateUser(
         @Path() id: string,
         @Body() requestBody: UsersUpdateInput,

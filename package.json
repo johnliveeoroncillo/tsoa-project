@@ -10,7 +10,7 @@
     "start": "node build/src/server.js",
     "build:spec": "tsoa spec",
     "build:routes": "tsoa routes",
-    "generate": "npx tsoa spec-and-routes && ts-node generate.ts",
+    "generate": "npx tsoa spec-and-routes",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
