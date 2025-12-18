@@ -1,4 +1,4 @@
-import moment, { Moment } from 'moment-timezone';
+import moment, { type Moment } from 'moment-timezone';
 
 export const getMomentTimeZone = (date?: Date | string, tz = 'UTC'): Moment => {
     return moment(date).tz(tz);
