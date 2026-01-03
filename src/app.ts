@@ -6,6 +6,8 @@ import express, {
     json,
     NextFunction,
 } from 'express';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import { RegisterRoutes } from '../build/routes';
 import swaggerUi from 'swagger-ui-express';
 import { ValidateError } from 'tsoa';
@@ -14,6 +16,19 @@ import { exceptionHandler } from './common/middleware/exception.handler';
 import { requestLogger } from './common/middleware/request.logger';
 
 export const app = express();
+
+// Configure CORS - must be before other middleware
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN || process.env.FRONTEND_URL || true, // Allow all origins in dev, specific in prod
+    credentials: true, // Allow cookies to be sent
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Set-Cookie'],
+};
+app.use(cors(corsOptions));
+
+// Use cookie parser middleware (must be before routes)
+app.use(cookieParser());
 
 // Use body parser to read sent json payloads
 app.use(
