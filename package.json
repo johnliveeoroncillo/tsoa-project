@@ -21,6 +21,8 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:format": "prisma format",
+    "prisma:create": "prisma migrate dev --create-only",
+    "prisma:reset": "prisma migrate reset",
     "generate:api": "ts-node ./scripts/generate-api.ts"
   },
   "lint-staged": {
@@ -34,20 +36,24 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "moment-timezone": "^0.6.0",
     "nodemailer": "^7.0.6",
     "prisma": "5.17.0",
     "reflect-metadata": "^0.2.2",
     "swagger-ui-express": "^5.0.1",
-    "tsoa": "^6.6.0",
-    "moment-timezone": "^0.6.0"
+    "tsoa": "^6.6.0"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
     "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.3",
     "@types/joi": "^17.2.3",
