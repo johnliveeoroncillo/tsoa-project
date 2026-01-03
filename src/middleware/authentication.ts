@@ -14,7 +14,11 @@ export function expressAuthentication(
 
         switch (securityName) {
             case 'bearer': {
-                const authHeader = request.headers.authorization;
+                const authHeader = JwtService.extractTokenFromHeader(
+                    request.headers.authorization ??
+                        request.cookies[JwtService.COOKIE_NAME] ??
+                        '',
+                );
                 if (!authHeader) {
                     reject(
                         new UnauthorizedException(
@@ -24,17 +28,7 @@ export function expressAuthentication(
                     return;
                 }
 
-                const token = JwtService.extractTokenFromHeader(authHeader);
-                if (!token) {
-                    reject(
-                        new UnauthorizedException(
-                            'Invalid authorization format. Use Bearer token',
-                        ),
-                    );
-                    return;
-                }
-
-                const payload = JwtService.verifyToken(token);
+                const payload = JwtService.verifyToken(authHeader);
                 if (!payload) {
                     reject(
                         new UnauthorizedException('Invalid or expired token'),
@@ -47,15 +41,17 @@ export function expressAuthentication(
 
                 // Check scopes if provided
                 const userRole = request.context.role;
-                const hasRequiredScope =
-                    userRole && scopes && scopes.includes(userRole);
-                if (!hasRequiredScope) {
-                    reject(
-                        new UnauthorizedException(
-                            'Insufficient permissions. You are not authorized to access this resource.',
-                        ),
-                    );
-                    return;
+                if (scopes && scopes.length > 0) {
+                    const hasRequiredScope =
+                        userRole && scopes && scopes.includes(userRole);
+                    if (!hasRequiredScope) {
+                        reject(
+                            new UnauthorizedException(
+                                'Insufficient permissions. You are not authorized to access this resource.',
+                            ),
+                        );
+                        return;
+                    }
                 }
 
                 resolve(payload);
