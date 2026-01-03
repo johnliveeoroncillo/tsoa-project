@@ -19,7 +19,29 @@ export const app = express();
 
 // Configure CORS - must be before other middleware
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN || process.env.FRONTEND_URL || true, // Allow all origins in dev, specific in prod
+    origin: (
+        origin: string | undefined,
+        callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        const allowedOrigins = process.env.CORS_ORIGIN
+            ? process.env.CORS_ORIGIN.split(',')
+            : process.env.FRONTEND_URL
+              ? [process.env.FRONTEND_URL]
+              : [];
+
+        // In development, allow all origins if no specific origin is set
+        if (
+            process.env.NODE_ENV !== 'production' &&
+            allowedOrigins.length === 0
+        ) {
+            callback(null, true);
+        } else if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true, // Allow cookies to be sent
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
