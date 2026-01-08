@@ -1,0 +1,25 @@
+// Generate Excel file
+// const buffer =
+//     await this.movementHistoryService.exportMovementHistory(query);
+// const filename = `movement-history-${new Date().toISOString().split('T')[0]}.xlsx`;
+// const response = (request as ExpressRequest & { res: Response }).res;
+
+// // Set status code
+// response.status(200);
+
+// // Set response headers BEFORE sending
+// response.setHeader(
+//     'Content-Type',
+//     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+// );
+
+// // Set Content-Disposition with proper filename encoding for browser compatibility
+// // Use both filename (for older browsers) and filename* (RFC 5987 for modern browsers)
+// const encodedFilename = encodeURIComponent(filename);
+// response.setHeader(
+//     'Content-Disposition',
+//     `attachment; filename="${filename}"; filename*=UTF-8''${encodedFilename}`,
+// );
+// response.setHeader('Content-Length', buffer.length.toString());
+
+// response.send(buffer);
