@@ -2,7 +2,7 @@
   "name": "tsoa-project",
   "version": "1.0.0",
   "main": "build/src/server.js",
-  "author": "John Oroncillo <john.oroncillo@forgewerks.com>",
+  "author": "John Oroncillo <johnliveeoroncillo@gmail.com>",
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
