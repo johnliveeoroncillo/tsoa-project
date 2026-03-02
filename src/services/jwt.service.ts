@@ -89,7 +89,7 @@ export class JwtService {
         const cookieOptions = [
             `${this.COOKIE_NAME}=${encodeURIComponent(token)}`,
             'HttpOnly',
-            `Max-Age=${this.COOKIE_MAX_AGE}`,
+            `Max-Age=${maxAgeSeconds || this.COOKIE_MAX_AGE}`,
             'Path=/',
         ];
 
