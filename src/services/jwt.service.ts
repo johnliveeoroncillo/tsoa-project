@@ -4,8 +4,12 @@ import bcrypt from 'bcryptjs';
 
 export interface JwtPayload {
     id: string;
+    username: string;
     meta?: Record<string, unknown>;
-    role?: string;
+    role?: {
+        id: string;
+        name: string;
+    };
     iat?: number;
     exp?: number;
 }
@@ -15,19 +19,14 @@ export class JwtService {
         process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
     // JWT_EXPIRES_IN in hours (e.g., 24 for 24 hours = 1 day)
-    private static readonly EXPIRES_IN_HOURS = parseInt(
-        process.env.JWT_EXPIRES_IN || '24',
-        10,
-    );
-
-    // Convert hours to 'Xh' format for jwt.sign (e.g., '24h' for 24 hours)
-    private static readonly EXPIRES_IN = `${this.EXPIRES_IN_HOURS}h`;
+    // 60 * 60 = 1 hour (3600 seconds)
+    private static readonly EXPIRES_IN = +(process.env.JWT_EXPIRES_IN || 3600); // 1 hour
 
     // Convert hours to milliseconds for cookie maxAge
     private static readonly COOKIE_MAX_AGE_MS =
-        this.EXPIRES_IN_HOURS * 60 * 60 * 1000;
+        this.EXPIRES_IN * 60 * 60 * 1000;
 
-    private static readonly COOKIE_NAME = process.env.COOKIE_NAME || 'token';
+    static readonly COOKIE_NAME = process.env.COOKIE_NAME || 'token';
 
     /**
      * Generate JWT token
@@ -82,9 +81,6 @@ export class JwtService {
      * @returns Token string or null
      */
     static extractTokenFromHeader(authHeader: string): string | null {
-        if (!authHeader?.startsWith('Bearer ')) {
-            return null;
-        }
         return authHeader.replace('Bearer ', ''); // Remove 'Bearer ' prefix
     }
 
@@ -98,9 +94,17 @@ export class JwtService {
             `Max-Age=${maxAgeSeconds}`,
             'Path=/',
         ];
+
+        // Set SameSite attribute for cross-origin requests
+        // SameSite=None requires Secure flag
         if (process.env.NODE_ENV === 'production') {
             cookieOptions.push('Secure');
+            cookieOptions.push('SameSite=None');
+        } else {
+            // In development, use Lax for same-site or None if cross-origin
+            cookieOptions.push('SameSite=Lax');
         }
+
         const cookieValue = cookieOptions.join('; ');
         res.setHeader('Set-Cookie', cookieValue);
     }
