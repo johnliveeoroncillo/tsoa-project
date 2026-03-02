@@ -23,8 +23,7 @@ export class JwtService {
     private static readonly EXPIRES_IN = +(process.env.JWT_EXPIRES_IN || 3600); // 1 hour
 
     // Convert hours to milliseconds for cookie maxAge
-    private static readonly COOKIE_MAX_AGE_MS =
-        this.EXPIRES_IN * 60 * 60 * 1000;
+    private static readonly COOKIE_MAX_AGE = this.EXPIRES_IN;
 
     static readonly COOKIE_NAME = process.env.COOKIE_NAME || 'token';
 
@@ -84,14 +83,13 @@ export class JwtService {
         return authHeader.replace('Bearer ', ''); // Remove 'Bearer ' prefix
     }
 
-    static setSessionCookie(res: ExpressResponse, token: string): void {
+    static setSessionCookie(res: ExpressResponse, token: string, maxAgeSeconds?: number): void {
         // Use setHeader directly - this works regardless of cookie-parser
         // TSOA's TsoaResponse is the Express Response at runtime
-        const maxAgeSeconds = Math.floor(this.COOKIE_MAX_AGE_MS / 1000);
         const cookieOptions = [
             `${this.COOKIE_NAME}=${encodeURIComponent(token)}`,
             'HttpOnly',
-            `Max-Age=${maxAgeSeconds}`,
+            `Max-Age=${this.COOKIE_MAX_AGE}`,
             'Path=/',
         ];
 
