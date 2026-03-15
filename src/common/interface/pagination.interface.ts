@@ -13,3 +13,10 @@ export interface PaginatedResponse<T> {
     pagination: Pagination;
     data: T[];
 }
+
+export interface PaginatedQuery {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sort?: string;
+}
