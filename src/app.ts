@@ -23,12 +23,20 @@ const corsOptions = {
         origin: string | undefined,
         callback: (err: Error | null, allow?: boolean) => void,
     ) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        const allowedOrigins = process.env.CORS_ORIGIN
+        const fromEnv = process.env.CORS_ORIGIN
             ? process.env.CORS_ORIGIN.split(',')
-            : process.env.FRONTEND_URL
-              ? [process.env.FRONTEND_URL]
-              : [];
+                  .map(o => o.trim())
+                  .filter(Boolean)
+            : [];
+        const allowedOrigins =
+            fromEnv.length > 0
+                ? fromEnv
+                : process.env.FRONTEND_URL
+                  ? [process.env.FRONTEND_URL.trim()]
+                  : [];
+
+        // `*` means allow any origin (reflects request Origin in the response)
+        const allowAnyOrigin = allowedOrigins.includes('*');
 
         // In development, allow all origins if no specific origin is set
         if (
@@ -36,16 +44,23 @@ const corsOptions = {
             allowedOrigins.length === 0
         ) {
             callback(null, true);
+        } else if (allowAnyOrigin) {
+            callback(null, true);
         } else if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true, // Allow cookies to be sent
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposedHeaders: ['Set-Cookie'],
+    allowedHeaders: [
+        'Allow-Origin',
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With',
+        'X-Api-Key',
+        'X-Device-Id',
+    ],
 };
 app.use(cors(corsOptions));
 
