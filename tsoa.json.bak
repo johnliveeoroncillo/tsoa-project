@@ -1,0 +1,28 @@
+{
+  "entryFile": "src/app.ts",
+  "noImplicitAdditionalProperties": "silently-remove-extras",
+  "controllerPathGlobs": ["src/**/*.controller.ts"],
+  "spec": {
+    "outputDirectory": "build",
+    "specVersion": 3,
+    "securityDefinitions": {
+      "api-key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Api-Key",
+        "description": "Server API key (same value as API_KEY on the API)"
+      },
+      "device-id": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Device-Id",
+        "description": "Client device identifier"
+      }
+    }
+  },
+  "routes": {
+    "routesDir": "build",
+    "middleware": "src/middleware/**.middleware.ts",
+    "authenticationModule": "src/middleware/authentication.ts"
+  }
+}
