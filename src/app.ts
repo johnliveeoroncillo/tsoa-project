@@ -6,6 +6,8 @@ import express, {
     json,
     NextFunction,
 } from 'express';
+import { readFileSync } from 'fs';
+import path from 'path';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { RegisterRoutes } from '../build/routes';
@@ -81,11 +83,24 @@ app.use(requestLogger);
 // Add response interceptor middleware to wrap all responses in generic format
 app.use(responseInterceptor);
 
-app.use('/docs', swaggerUi.serve, async (_req: ExRequest, res: ExResponse) => {
-    return res.send(
-        swaggerUi.generateHTML(await import('../build/swagger.json')),
-    );
-});
+/** Resolved from project root so it works under ts-node and compiled `build/src/app.js`. */
+function loadSwaggerSpec(): Record<string, unknown> {
+    const specPath = path.join(process.cwd(), 'build', 'swagger.json');
+    const raw = readFileSync(specPath, 'utf-8');
+    return JSON.parse(raw) as Record<string, unknown>;
+}
+
+const swaggerDocument = loadSwaggerSpec();
+
+app.use(
+    '/docs',
+    ...swaggerUi.serve,
+    swaggerUi.setup(swaggerDocument, {
+        swaggerOptions: {
+            persistAuthorization: true,
+        },
+    }),
+);
 
 RegisterRoutes(app);
 
