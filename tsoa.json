@@ -4,7 +4,15 @@
   "controllerPathGlobs": ["src/**/*.controller.ts"],
   "spec": {
     "outputDirectory": "build",
-    "specVersion": 3
+    "specVersion": 3,
+    "securityDefinitions": {
+        "bearer": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "description": "JWT in the Authorization header (Bearer <token>). Authenticated routes also require the x-client-id header (set it manually in Swagger or your client)."
+        }
+    }
   },
   "routes": {
     "routesDir": "build",
