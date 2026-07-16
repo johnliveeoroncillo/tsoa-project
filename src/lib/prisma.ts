@@ -1,44 +1,59 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 import { omit } from '../utils/object.utils';
 
-declare global {
-    // eslint-disable-next-line no-var
-    var prisma: any;
-}
+const READ_OPERATIONS = new Set([
+    'findMany',
+    'findFirst',
+    'findUnique',
+    'count',
+]);
 
 function createPrismaClient() {
     const baseClient = new PrismaClient();
-    
-    const extendedClient = baseClient.$extends({
+
+    return baseClient.$extends({
         query: {
             $allModels: {
-                async $allOperations({ operation, args, query }: { operation: string; args: any; query: any }) {
-                    // Only apply to operations that support where clause
-                    if (['findMany', 'findFirst', 'findUnique', 'count'].includes(operation)) {
-                        const argsWithWhere = args as any;
-                        // Only add deletedAt filter if includeDeleted is not true
-                        if (!argsWithWhere.includeDeleted) {
-                            if (argsWithWhere.where) {
-                                argsWithWhere.where.deletedAt = null;
-                            } else {
-                                argsWithWhere.where = { deletedAt: null };
-                            }
-                        }
+                async $allOperations({
+                    operation,
+                    args,
+                    query,
+                }: {
+                    operation: string;
+                    args: Record<string, any>;
+                    query: (args: Record<string, any>) => Promise<unknown>;
+                }) {
+                    const includeDeleted = args?.includeDeleted === true;
+
+                    const cleanArgs = omit(args ?? {}, ['includeDeleted']);
+
+                    if (READ_OPERATIONS.has(operation) && !includeDeleted) {
+                        return query({
+                            ...cleanArgs,
+                            where: {
+                                ...(cleanArgs.where ?? {}),
+                                deletedAt: null,
+                            },
+                        });
                     }
-                    return query(omit(args, ['includeDeleted']));
+
+                    return query(cleanArgs);
                 },
             },
         },
     });
-
-    return extendedClient;
 }
 
-// Prevent multiple instances of Prisma Client in development
-const prisma = createPrismaClient();
+type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
+
+const globalForPrisma = globalThis as typeof globalThis & {
+    prisma?: ExtendedPrismaClient;
+};
+
+const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== 'production') {
-    globalThis.prisma = prisma;
+    globalForPrisma.prisma = prisma;
 }
 
 export default prisma;
