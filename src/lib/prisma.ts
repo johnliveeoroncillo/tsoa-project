@@ -28,30 +28,6 @@ function toClientDelegateName(model: string): string {
     return model.charAt(0).toLowerCase() + model.slice(1);
 }
 
-type IncludeDeleted = { includeDeleted?: boolean };
-
-type AddIncludeDeletedToArgs<Fn> = Fn extends (args?: infer A) => infer R
-    ? undefined extends A
-        ? (args?: (A & IncludeDeleted) | undefined) => R
-        : (args: A & IncludeDeleted) => R
-    : Fn extends (args: infer A) => infer R
-      ? (args: A & IncludeDeleted) => R
-      : Fn;
-
-type SoftDeleteReadMethods =
-    | 'findMany'
-    | 'findFirst'
-    | 'findUnique'
-    | 'findFirstOrThrow'
-    | 'findUniqueOrThrow'
-    | 'count';
-
-type ModelWithIncludeDeleted<M> = {
-    [P in keyof M]: P extends SoftDeleteReadMethods
-        ? AddIncludeDeletedToArgs<M[P]>
-        : M[P];
-};
-
 const softDeleteExtension = Prisma.defineExtension(client =>
     client.$extends({
         name: 'softDelete',
@@ -160,26 +136,22 @@ function createPrismaClient() {
     return new PrismaClient().$extends(softDeleteExtension);
 }
 
-type RawExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
-
-export type ExtendedPrismaClient = {
-    [K in keyof RawExtendedPrismaClient]: RawExtendedPrismaClient[K] extends {
-        findMany: unknown;
-    }
-        ? ModelWithIncludeDeleted<RawExtendedPrismaClient[K]>
-        : RawExtendedPrismaClient[K];
-};
+export type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
 
 const globalForPrisma = globalThis as typeof globalThis & {
     prisma?: ExtendedPrismaClient;
 };
 
-const prisma: ExtendedPrismaClient =
-    globalForPrisma.prisma ??
-    (createPrismaClient() as unknown as ExtendedPrismaClient);
+const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== 'production') {
     globalForPrisma.prisma = prisma;
 }
 
 export default prisma;
+
+/**
+ * Pass read args with optional includeDeleted without breaking Prisma Exact types.
+ * Runtime extension strips this flag and skips deletedAt filtering when true.
+ */
+export type WithIncludeDeleted<T> = T & { includeDeleted?: boolean };
